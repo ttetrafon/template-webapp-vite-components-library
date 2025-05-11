@@ -1,6 +1,6 @@
 import isEqual from 'lodash/isEqual';
 import styles from '../style.css?inline';
-import state from '../services/state.js';
+import state from '../services-library/state.js';
 import { eventNames, messageTypes } from '../data/enums.js';
 import { buildHtmlFromStructure, buildStructureFromHtml, setCaretPosition, setCaretPositionAtEnd } from '../helper-library/dom.js';
 import { Command_Editor_UpdateLines } from '../model/command.js';
