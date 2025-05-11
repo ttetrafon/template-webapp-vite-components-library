@@ -2,7 +2,7 @@ import isEqual from 'lodash/isEqual';
 import styles from '../style.css?inline';
 import state from '../services/state.js';
 import { eventNames, messageTypes } from '../data/enums.js';
-import { buildHtmlFromStructure, buildStructureFromHtml, setCaretPosition, setCaretPositionAtEnd } from '../helper/dom.js';
+import { buildHtmlFromStructure, buildStructureFromHtml, setCaretPosition, setCaretPositionAtEnd } from '../helper-library/dom.js';
 import { Command_Editor_UpdateLines } from '../model/command.js';
 
 const template = document.createElement('template');
