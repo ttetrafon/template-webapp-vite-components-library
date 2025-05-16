@@ -1,14 +1,12 @@
-import styles from '../style.css?inline';
+import styles from '../styles/style.css?inline';
+import defaultStyles from './styles/styles/---.css?inline';
 
 const template = document.createElement('template');
 
 template.innerHTML = /*html*/`
 <style>
   ${ styles }
-
-  :host {
-    display: block;
-  }
+  ${ defaultStyles }
 </style>
 
 <div>...</div>
@@ -24,12 +22,14 @@ class Component extends HTMLElement {
   }
 
   // Attributes need to be observed to be tied to the lifecycle change callback.
-  static get observedAttributes() { return ['label', 'data']; }
+  static get observedAttributes() { return ['label', 'data', 'custom-styles']; }
 
   // Attribute values are always strings, so we need to convert them in their getter/setters as appropriate.
+  get customStyles() { return this.getAttribute('custom-styles'); }
   get data() { return JSON.parse(this.getAttribute('data')); }
   get label() { return this.getAttribute('label'); }
 
+  set customStyles(value) { this.setAttribute('custom-styles', value); }
   set data(value) { this.setAttribute('data', value); }
   set label(value) { this.setAttribute('label', value); }
 
@@ -44,7 +44,8 @@ class Component extends HTMLElement {
   attributeChangedCallback(name, oldVal, newVal) {
     if (oldVal == newVal) return;
     switch (name) {
-      default:
+      case 'custom-styles':
+        this._loadCustomStyleSheet();
         break;
     }
   }
@@ -65,6 +66,18 @@ class Component extends HTMLElement {
    * Note that adoption does not trigger the constructor again.
    */
   adoptedCallback() {
+  }
+  _loadCustomStyleSheet() {
+    if (!this.customStyles) return;
+
+    try {
+      const linkElement = document.createElement('link');
+      linkElement.setAttribute('rel', 'stylesheet');
+      linkElement.setAttribute('href', this.customStyles);
+
+      this._shadow.appendChild(linkElement);
+    }
+    catch (err) { }
   }
 }
 

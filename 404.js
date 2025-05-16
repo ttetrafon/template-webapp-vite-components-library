@@ -1,4 +1,4 @@
-import styles from '../style.css?inline';
+import styles from '../styles/style.css?inline';
 
 const template = document.createElement('template');
 
@@ -24,12 +24,14 @@ class Component extends HTMLElement {
   }
 
   // Attributes need to be observed to be tied to the lifecycle change callback.
-  static get observedAttributes() { return ['label', 'data']; }
+  static get observedAttributes() { return ['label', 'data', 'custom-styles']; }
 
   // Attribute values are always strings, so we need to convert them in their getter/setters as appropriate.
+  get customStyles() { return this.getAttribute('custom-styles'); }
   get data() { return JSON.parse(this.getAttribute('data')); }
   get label() { return this.getAttribute('label'); }
 
+  set customStyles(value) { this.setAttribute('custom-styles', value); }
   set data(value) { this.setAttribute('data', value); }
   set label(value) { this.setAttribute('label', value); }
 
@@ -38,7 +40,8 @@ class Component extends HTMLElement {
     // Attribute value changes can be tied to any type of functionality through the lifecycle methods.
     if (oldVal == newVal) return;
     switch(name) {
-      default:
+      case 'custom-styles':
+        this._loadCustomStyleSheet();
         break;
     }
   }
@@ -53,6 +56,15 @@ class Component extends HTMLElement {
   adoptedCallback() {
     // Triggered when the element is adopted through `document.adoptElement()` (like when using an <iframe/>).
     // Note that adoption does not trigger the constructor again.
+  }
+  _loadCustomStyleSheet() {
+    if (!this.customStyles) return;
+
+    const linkElement = document.createElement('link');
+    linkElement.setAttribute('rel', 'stylesheet');
+    linkElement.setAttribute('href', this.customStyles);
+
+    this._shadow.appendChild(linkElement);
   }
 }
 

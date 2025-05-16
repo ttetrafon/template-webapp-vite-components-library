@@ -1,4 +1,5 @@
-import styles from '../style.css?inline';
+import styles from '../styles/style.css?inline';
+import defaultStyles from './styles/input-field.css?inline';
 import { eventNames } from '../data-library/enums.js';
 import { emitCustomEvent } from '../helper-library/dom.js';
 
@@ -6,30 +7,8 @@ const template = document.createElement('template');
 
 template.innerHTML = /*html*/`
 <style>
-  ${styles}
-
-  :host {
-    display: block;
-    width: 100%;
-  }
-
-  div.flex-line {
-    gap: 10px;
-  }
-
-  div.flex-column label {
-    align-self: flex-start;
-  }
-  div.flex-line label {
-    align-self: center;
-  }
-
-  input {
-    margin-bottom: 10px;
-    padding: 5px 10px;
-    flex-grow: 1;
-    text-align: center;
-  }
+  ${ styles }
+  ${ defaultStyles }
 </style>
 
 <div class="flex-column">
@@ -52,9 +31,10 @@ class Component extends HTMLElement {
   }
 
   // Attributes need to be observed to be tied to the lifecycle change callback.
-  static get observedAttributes() { return ['label', 'id', 'hint', 'type', 'required', 'validationFailureMsg', 'direction', 'initial-value']; }
+  static get observedAttributes() { return ['label', 'id', 'hint', 'type', 'required', 'validationFailureMsg', 'direction', 'initial-value', 'custom-styles']; }
 
   // Attribute values are always strings, so we need to convert them in their getter/setters as appropriate.
+  get customStyles() { return this.getAttribute('custom-styles'); }
   get direction() { return this.getAttribute('direction'); }
   get hint() { return this.getAttribute('hint'); }
   get id() { return this.getAttribute('id'); }
@@ -64,6 +44,7 @@ class Component extends HTMLElement {
   get type() { return this.getAttribute('type'); }
   get validationFailureMsg() { return this.getAttribute('validationFailureMsg'); }
 
+  set customStyles(value) { this.setAttribute('custom-styles', value); }
   set direction(value) { this.setAttribute('direction', value); }
   set hint(value) { this.setAttribute('hint', value); }
   set id(value) { this.setAttribute('id', value); }
@@ -77,7 +58,10 @@ class Component extends HTMLElement {
   attributeChangedCallback(name, oldVal, newVal) {
     // Attribute value changes can be tied to any type of functionality through the lifecycle methods.
     if (oldVal == newVal) return;
-    switch(name) {
+    switch (name) {
+      case 'custom-styles':
+        this._loadCustomStyleSheet();
+        break;
       case 'direction':
         this.$container.classList.toggle('flex-column', this.direction == 'column');
         this.$container.classList.toggle('flex-line', this.direction == 'line');
@@ -122,6 +106,15 @@ class Component extends HTMLElement {
     // Triggered when the element is adopted through `document.adoptElement()` (like when using an <iframe/>).
     // Note that adoption does not trigger the constructor again.
   }
+  _loadCustomStyleSheet() {
+    if (!this.customStyles) return;
+
+    const linkElement = document.createElement('link');
+    linkElement.setAttribute('rel', 'stylesheet');
+    linkElement.setAttribute('href', this.customStyles);
+
+    this._shadow.appendChild(linkElement);
+  }
 
   /**
    * @param {Event} event
@@ -140,7 +133,7 @@ class Component extends HTMLElement {
   }
 
   validateValue() {
-    console.log(`---> validateValue(${this.id})`);
+    console.log(`---> validateValue(${ this.id })`);
     this.$field.checkValidity();
     this.$field.setCustomValidity(this.validationFailureMsg);
     return this.$field.reportValidity();

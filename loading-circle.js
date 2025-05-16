@@ -1,49 +1,12 @@
-import styles from '../style.css?inline';
+import styles from '../styles/style.css?inline';
+import defaultStyles from './styles/loading-circle.css?inline';
 
 const template = document.createElement('template');
 
 template.innerHTML = /*html*/`
 <style>
-  ${styles}
-
-  .spinner-parent {
-    position: fixed;
-    background-color: var(--colour-tertiary-a);
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 999;
-  }
-
-  .spinner {
-    z-index: 999;
-  }
-
-  #spinner::before {
-    content: "";
-    box-sizing: border-box;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    height: 40px;
-    width: 40px;
-    margin-top: -20px;
-    margin-left: -20px;
-  }
-
-  #spinner::before {
-    border-radius: 50%;
-    border: 3px solid var(--colour-secondary);
-    border-top-color: var(--colour-primary);
-    border-bottom-color: var(--colour-primary);
-    animation: spinner 0.7s ease infinite;
-  }
-  @keyframes spinner {
-    to {
-      transform: rotate(360deg);
-    }
-  }
+  ${ styles }
+  ${ defaultStyles }
 </style>
 
 <div id="spinner-parent" class="spinner-parent">
@@ -58,19 +21,42 @@ class LoadingCircle extends HTMLElement {
     this._shadow.appendChild(template.content.cloneNode(true));
   }
 
-  static get observedAttributes() { return [ 'level', 'lang' ]; }
+  static get observedAttributes() { return ['lang', 'custom-styles']; }
 
-  get level() {
-    let l = this.getAttribute("level");
-    return l ? l : ".";
-  }
+  get customStyles() { return this.getAttribute('custom-styles'); }
   get lang() { return this.getAttribute("lang"); }
 
-  set level(value) { this.setAttribute("level", value); }
+  set customStyles(value) { this.setAttribute('custom-styles', value); }
   set lang(value) { this.setAttribute("lang", value); }
 
   attributeChangedCallback(property, oldValue, newValue) {
     if (oldValue === newValue) return;
+    switch(property) {
+      case 'custom-styles':
+        this._loadCustomStyleSheet();
+        break;
+    }
+  }
+    connectedCallback() {
+    // Triggered when the component is added to the DOM.
+  }
+  disconnectedCallback() {
+    // Triggered when the component is removed from the DOM.
+    // Ideal place for cleanup code.
+    // Note that when destroying a component, it is good to also release any listeners.
+  }
+  adoptedCallback() {
+    // Triggered when the element is adopted through `document.adoptElement()` (like when using an <iframe/>).
+    // Note that adoption does not trigger the constructor again.
+  }
+  _loadCustomStyleSheet() {
+    if (!this.customStyles) return;
+
+    const linkElement = document.createElement('link');
+    linkElement.setAttribute('rel', 'stylesheet');
+    linkElement.setAttribute('href', this.customStyles);
+
+    this._shadow.appendChild(linkElement);
   }
 }
 
