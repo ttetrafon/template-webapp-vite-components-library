@@ -7,6 +7,11 @@ template.innerHTML = /*html*/`
 <style>
   ${ styles }
   ${ defaultStyles }
+
+  :host {
+    display: block;
+    width: 100%;
+  }
 </style>
 
 <div>...</div>
