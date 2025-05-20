@@ -42,6 +42,7 @@ class Component extends HTMLElement {
    * @returns
    */
   attributeChangedCallback(name, oldVal, newVal) {
+    // console.log(`--> attributeChangedCallback(${name}, ${JSON.stringify(oldVal)}, ${JSON.stringify(newVal)})`);
     if (oldVal == newVal) return;
     switch (name) {
       case 'custom-styles':
