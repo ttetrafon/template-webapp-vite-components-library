@@ -1,5 +1,5 @@
 import styles from '../styles/style.css?inline';
-import defaultStyles from './styles/---.css?inline';
+import defaultStyles from './styles/page-link.css?inline';
 
 const template = document.createElement('template');
 
@@ -7,14 +7,14 @@ template.innerHTML = /*html*/`
 <style>
   ${ styles }
   ${ defaultStyles }
-
-  :host {
-    display: block;
-    width: 100%;
-  }
 </style>
 
-<div>...</div>
+<a href=".">
+  <span></span>
+  <svg-wrapper class="hidden"
+    image="open_in_new"
+  ></svg-wrapper>
+</a>
 `;
 
 class Component extends HTMLElement {
@@ -24,19 +24,25 @@ class Component extends HTMLElement {
     // The mode can be set to 'open' if we need the document to be able to access the shadow-dom internals.
     // Access happens through ths `shadowroot` property in the host.
     this._shadow.appendChild(template.content.cloneNode(true));
+
+    this.$link = this._shadow.querySelector('a');
+    this.$span = this._shadow.querySelector('span');
+    this.$svg = this._shadow.querySelector('svg-wrapper');
   }
 
   // Attributes need to be observed to be tied to the lifecycle change callback.
-  static get observedAttributes() { return ['label', 'data', 'custom-styles']; }
+  static get observedAttributes() { return ['label', 'custom-styles', 'target', 'href']; }
 
   // Attribute values are always strings, so we need to convert them in their getter/setters as appropriate.
   get customStyles() { return this.getAttribute('custom-styles'); }
-  get data() { return JSON.parse(this.getAttribute('data')); }
   get label() { return this.getAttribute('label'); }
+  get target() { return this.getAttribute('target'); }
+  get href() { return this.getAttribute('href'); }
 
   set customStyles(value) { this.setAttribute('custom-styles', value); }
-  set data(value) { this.setAttribute('data', value); }
   set label(value) { this.setAttribute('label', value); }
+  set target(value) { this.setAttribute('target', value); }
+  set href(value) { this.setAttribute('href', value); }
 
   // A web component implements the following lifecycle methods.
   /**
@@ -52,6 +58,16 @@ class Component extends HTMLElement {
     switch (name) {
       case 'custom-styles':
         this._loadCustomStyleSheet();
+        break;
+      case 'label':
+        this.$span.innerText = newVal;
+        break;
+      case 'target':
+        this.$link.setAttribute('target', this.target);
+        this.$svg.classList.toggle("hidden", this.target != "_blank");
+        break;
+      case 'href':
+        this.$link.setAttribute('href', this.href);
         break;
     }
   }
@@ -87,4 +103,4 @@ class Component extends HTMLElement {
   }
 }
 
-window.customElements.define('my-component', Component);
+window.customElements.define('page-link', Component);
