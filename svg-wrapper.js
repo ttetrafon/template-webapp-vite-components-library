@@ -23,17 +23,15 @@ class Component extends HTMLElement {
     this.$path;
   }
 
-  static get observedAttributes() { return ['background', 'colour', 'label', 'image', 'pointer', 'custom-styles']; }
+  static get observedAttributes() { return ['background', 'label', 'image', 'pointer', 'custom-styles']; }
 
   get background() { return this.getAttribute('background'); }
-  get colour() { return this.getAttribute('colour'); }
   get customStyles() { return this.getAttribute('custom-styles'); }
   get image() { return this.getAttribute('image'); }
   get label() { return this.getAttribute('label'); }
   get pointer() { return JSON.parse(this.getAttribute('pointer')); }
 
   set background(value) { this.setAttribute('background', value); }
-  set colour(value) { this.setAttribute('colour', value); }
   set customStyles(value) { this.setAttribute('custom-styles', value); }
   set image(value) { this.setAttribute('image', value); }
   set label(value) { this.setAttribute('label', value); }
@@ -52,9 +50,6 @@ class Component extends HTMLElement {
       case "label":
         this.$svgContainer.setAttribute("title", this.label);
         this.setAlt();
-        break;
-      case "colour":
-        this.setColour();
         break;
       case "background":
         this.setBackground();
@@ -112,12 +107,6 @@ class Component extends HTMLElement {
   setBackground() {
     if (this.$svgContainer && this.background) {
       this.$svgContainer.style.backgroundColor = this.background;
-    }
-  }
-
-  setColour() {
-    if (this.$svg && this.colour) {
-      this.$svg.setAttribute("fill", this.colour);
     }
   }
 
