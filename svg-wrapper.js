@@ -19,8 +19,8 @@ class Component extends HTMLElement {
     this._shadow.appendChild(template.content.cloneNode(true));
 
     this.$svgContainer = this._shadow.querySelector("div");
-    this.$svg;
-    this.$path;
+    this.$svg = null;
+    this.$path = null;
   }
 
   static get observedAttributes() { return ['background', 'label', 'image', 'pointer', 'custom-styles']; }
@@ -37,7 +37,7 @@ class Component extends HTMLElement {
   set label(value) { this.setAttribute('label', value); }
   set pointer(value) { this.setAttribute('pointer', value); }
 
-  // A web component implements the following lifecycle methods.
+  // Lifecycle methods
   attributeChangedCallback(name, oldVal, newVal) {
     if (oldVal == newVal) return;
     switch (name) {
@@ -71,14 +71,18 @@ class Component extends HTMLElement {
     // Triggered when the element is adopted through `document.adoptElement()` (like when using an <iframe/>).
     // Note that adoption does not trigger the constructor again.
   }
-  _loadCustomStyleSheet() {
+
+  async _loadCustomStyleSheet() {
     if (!this.customStyles) return;
 
-    const linkElement = document.createElement('link');
-    linkElement.setAttribute('rel', 'stylesheet');
-    linkElement.setAttribute('href', this.customStyles);
-
-    this._shadow.appendChild(linkElement);
+    try {
+      const customStyleModule = await import(`../styles/${this.customStyles}.css?inline`);
+      const styleElement = document.createElement('style');
+      styleElement.textContent = customStyleModule.default;
+      this._shadow.appendChild(styleElement);
+    } catch (err) {
+      console.error(`Failed to load custom stylesheet: '/src/styles/${this.customStyles}.css'`, err);
+    }
   }
 
   async createSvg() {
@@ -91,11 +95,11 @@ class Component extends HTMLElement {
       this.$svg.removeAttribute("fill");
       this.$path = this._shadow.querySelector("path");
       this.setAlt();
-      this.setColour();
       this.setBackground();
       this.setPointer();
+    } catch (err) {
+      console.error(`Failed to load SVG image: ${this.image}`, err);
     }
-    catch (err) { }
   }
 
   setAlt() {
@@ -111,7 +115,7 @@ class Component extends HTMLElement {
   }
 
   setPointer() {
-    if (this.$svg && this.pointer != null && this.pointer != undefined) {
+    if (this.$svg && this.pointer != null) {
       this.$svg.classList.toggle("pointer", this.pointer);
       this.$path.classList.toggle("pointer", this.pointer);
     }
