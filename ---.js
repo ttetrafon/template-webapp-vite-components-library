@@ -1,6 +1,7 @@
 import styles from '../styles/style.css?inline';
 import defaultStyles from './styles/---.css?inline';
 
+const _name = 'my-component';
 const template = document.createElement('template');
 
 template.innerHTML = /*html*/`
@@ -87,4 +88,4 @@ class Component extends HTMLElement {
   }
 }
 
-window.customElements.define('my-component', Component);
+window.customElements.define(_name, Component);
