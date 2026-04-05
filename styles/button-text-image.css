@@ -1,6 +1,7 @@
 :host {
   display: block;
   height: auto;
+  cursor: pointer;
 }
 
 button {
@@ -8,14 +9,17 @@ button {
   gap: 3px;
   align-items: center;
   padding: 3px;
+  cursor: inherit;
 }
 
 svg-wrapper {
   height: 100%;
   white-space: nowrap;
+  cursor: inherit;
 }
 
 span {
   flex-grow: 1;
   text-align: left;
+  cursor: inherit;
 }
